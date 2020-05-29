@@ -1,0 +1,10 @@
+Package: skewmerge
+Type: Package
+Title: This package merges skew normal components based on modes
+Version: 0.1.1
+Author: "Put our names"
+Maintainer: Surajit Ray <surajit.ray@glasgow.ac.uk> "change it to yours"
+Description: Provide a desription
+License: GPL-2
+Encoding: UTF-8
+LazyData: TRUE
