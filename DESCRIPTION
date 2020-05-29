@@ -4,7 +4,13 @@ Title: This package clusters functional data through the functional spectral clu
 Version: 0.1.1
 Author: Maryam Al Alawi, and Surajit Ray
 Maintainer: Maryam Al Alawi <m.al-alawi.1@research.gla.ac.uk> 
-Description: Provide a desription
+Description: There are 3 functions, 
+the first function 1 uses the original trajectories to performs the clustering, 
+while the second function uses the first derivatives of the curves 
+and finally the third function uses the second derivatives of the curves to perform the clustering. 
+All the functions requires the original data in a matrix format
+and some slected basis for the purpose of smoothing and the number of clusters in the data. 
+It generates the clustered labels for each curve. 
 License: GPL-2
 Encoding: UTF-8
 LazyData: TRUE
