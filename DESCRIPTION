@@ -1,9 +1,9 @@
-Package: skewmerge
+Package: FSC
 Type: Package
-Title: This package merges skew normal components based on modes
+Title: This package clusters functional data through the functional spectral clustering approach
 Version: 0.1.1
-Author: "Put our names"
-Maintainer: Surajit Ray <surajit.ray@glasgow.ac.uk> "change it to yours"
+Author: Maryam Al Alawi, and Surajit Ray
+Maintainer: Maryam Al Alawi <m.al-alawi.1@research.gla.ac.uk> 
 Description: Provide a desription
 License: GPL-2
 Encoding: UTF-8
