@@ -5,7 +5,7 @@ Version: 0.1.1
 Author: Maryam Al Alawi, and Surajit Ray
 Maintainer: Maryam Al Alawi <m.al-alawi.1@research.gla.ac.uk> 
 Description: There are 3 functions, 
-the first function 1 uses the original trajectories to performs the clustering, 
+the first function uses the original trajectories to perform the clustering, 
 while the second function uses the first derivatives of the curves 
 and finally the third function uses the second derivatives of the curves to perform the clustering. 
 All the functions requires the original data in a matrix format
