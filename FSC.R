@@ -6,217 +6,71 @@ require(fda)
 require(fda.usc)
 
 #===================
-# Spectral Clustering function FSC-S (Do)
+# Spectral Clustering function FSC
 
-# This function does the spectral clustering using original curves.
-# The function reads the actual data, basis, and the number of clusters
-# The function returns a matrix with the clusters members. 
+# This function performs functional spectral clustering 
+# and returns the cluster memebers of the curves 
+# The function reads the actual data, timeline, basis, number of clusters,
+# and the value d, where d can be 0, or 1 or 2.
 
-fsc.clst0.fun <- function(matrix.data, basis,  nclusters){ 
+FSC.fun <- function(matrix.data , timeline , basis ,  nclusters , d){ 
   
-  n <- dim(matrix.data[[1]])[2] 
-  v <- length(matrix.data) 
-  
-  smoothedfd <- list()
-  evaluatedata <- list()
-  fobject <- list()
-  M <- array(rep(0,n^2), dim=c(n,n,v))
-  sdM <- numeric(v)
-  A <- array(rep(0,n^2), dim=c(n,n,v)) 
-  D <- list()
-  L <- list()
-  X <- list()
-  Y <- list()
-  kmY <- list()
-  cls.kmY <- matrix(0,n,v) 
-  
-  
-  for(i in 1:v){
+  if(class(matrix.data)=="matrix"){
     
-    smoothedfd[[i]] <- smooth.basis( t , matrix.data[[i]], basis)
+    # find the number of curves
+    n <- dim(matrix.data)[2] 
+    # smooth the data according to the supplied basis
+    smoothedfd <- smooth.basis( timeline , matrix.data, basis)
+    deriv1 <- deriv.fd(smoothedfd$fd, 1) # for plotting purposes
+    deriv2 <- deriv.fd(smoothedfd$fd, 2) # for plotting purposes
+    
     # evaluate the smoothed data
-    evaluatedata[[i]] <- eval.fd(t, as.fd(smoothedfd[[i]]) )
+    evaluatedata <- eval.fd(timeline, as.fd(smoothedfd) )
     # calculate the distance using fda.usc metric.lp() measure
-    fobject[[i]] <- fdata(t(evaluatedata[[i]]))  
-    
-    M[,,i] <- metric.lp(fobject[[i]]) 
-    
-    sdM[i] <- sd(M[,,i])
-    
+    fobject <- fdata(t(evaluatedata))  
+    # assign the type of clustering according to d
+    if(d==0){  
+      M <- metric.lp(fobject) 
+    }else if(d==1){  
+      M <- semimetric.deriv(fobject, nderiv = 1)
+    }else if(d==2){  
+      M <- semimetric.deriv(fobject, nderiv = 2)
+    }else{
+      print("Warning: d must take the value: 0 or 1 or 2.")
+    } 
+    # calculate sd of the elements of M
+    sdM <- sd(M)
     # form the afinity matrix
-    A[,,i] <- exp(-M[,,i]/(2*sdM[i]))
-    
+    A <- exp(-M/(2*sdM))
     # form the Diagonal Matrix D, where D = sum of W across rows
-    D[[i]] = diag(apply(A[,,i],1,sum), n, n)  
-    
+    D <- diag(apply(A,1,sum), n, n)  
     # form the L matrix, such that L=D*AD*, where *=-1/2
-    L[[i]] = diag(1/sqrt(diag(D[[i]]))) %*% A[,,i] %*% diag(1/sqrt(diag(D[[i]])))
-    
+    L <- diag(1/sqrt(diag(D))) %*% A %*% diag(1/sqrt(diag(D)))
     # form the matrix X from the eigenvectors
-    X[[i]] = eigen(L[[i]], symmetric = TRUE)$vectors[,1:nclusters] 
-    
+    X <- eigen(L, symmetric = TRUE)$vectors[,1:nclusters] 
     # form Y from X
-    Y[[i]] = X[[i]]/sqrt(rowSums(X[[i]]^2))
-    
+    Y <- X/sqrt(rowSums(X^2))
     # Cluster Y rows using (k-means)
-    kmY[[i]] = kmeans(Y[[i]], centers = nclusters, iter.max = 100L, nstart = 1000L)
+    kmY <- kmeans(Y, centers = nclusters, iter.max = 100L, nstart = 1000L)
     # get the clusters members
-    cls.kmY[,i] <- kmY[[i]]$cluster
-    
+    cls.kmY <- kmY$cluster
     
     # to plot the curves in their clusters
-    #par(mfrow=c(1,2))
-    #matplot(matrix.data[[i]] ,  type = "l", col = cls.kmY[,i],main="Original curves")
-    #plot(smoothedfd[[i]], col=cls.kmY[,i] ,lwd=1,lty=1, main="Smoothed curves")
-    cat("Cluster data set", i , "of", v, "data sets is done!\n")
+    par(mfrow=c(1,3))
+    plot(smoothedfd, col=cls.kmY ,lwd=1,lty=1, main="Smoothed curves")
+    plot(deriv1, col=cls.kmY ,lwd=1,lty=1, main= "first derivatives")
+    plot(deriv2, col=cls.kmY ,lwd=1,lty=1, main="second derivatives")
     
+    return(cls.kmY)
+    
+  }else{
+    print("the data must be in a matrix format")
   }
   
-  return(cls.kmY)
   
 } 
 
 
 #===================
-# Spectral Clustering function FSC-S (D1)
 
-# This function does the spectral clustering using first derivatives.
-# The function reads the actual data, basis, and the number of clusters
-# The function returns a matrix with the clusters members. 
-
-fsc.clst1.fun <- function(matrix.data, basis, nclusters){ 
-  
-  n <- dim(matrix.data[[1]])[2] 
-  v <- length(matrix.data) 
-  
-  smoothedfd <- list()
-  evaluatedata <- list()
-  fobject <- list()
-  M <- array(rep(0,n^2), dim=c(n,n,v))
-  sdM <- numeric(v)
-  A <- array(rep(0,n^2), dim=c(n,n,v)) 
-  D <- list()
-  L <- list()
-  X <- list()
-  Y <- list()
-  kmY <- list()
-  cls.kmY <- matrix(0,n,v) 
-  
-  
-  
-  for(i in 1:v){
-    
-    smoothedfd[[i]] <- smooth.basis( t , matrix.data[[i]], penfd)
-    # evaluate the smoothed data
-    evaluatedata[[i]] <- eval.fd(t, as.fd(smoothedfd[[i]]) )
-    # calculate the distance using fda.usc metric.lp() measure
-    fobject[[i]] <- fdata(t(evaluatedata[[i]]))  
-    
-    M[,,i] <- semimetric.deriv(fobject[[i]], nderiv = 1)
-    sdM[i] <- sd(M[,,i])
-    
-    # form the afinity matrix
-    A[,,i] <- exp(-M[,,i]/(2*sdM[i]))
-    
-    # form the Diagonal Matrix D, where D = sum of W across rows
-    D[[i]] = diag(apply(A[,,i],1,sum), n, n)  
-    
-    # form the L matrix, such that L=D*AD*, where *=-1/2
-    L[[i]] = diag(1/sqrt(diag(D[[i]]))) %*% A[,,i] %*% diag(1/sqrt(diag(D[[i]])))
-    
-    # form the matrix X from the eigenvectors
-    X[[i]] = eigen(L[[i]], symmetric = TRUE)$vectors[,1:3] 
-    
-    # form Y from X
-    Y[[i]] = X[[i]]/sqrt(rowSums(X[[i]]^2))
-    
-    # Cluster Y rows using (k-means)
-    kmY[[i]] = kmeans(Y[[i]], centers = nclusters, iter.max = 100L, nstart = 1000L)
-    # get the clusters members
-    cls.kmY[,i] <- kmY[[i]]$cluster
-    
-    # to plot the curves in their clusters
-    #par(mfrow=c(1,2))
-    #matplot(matrix.data[[i]] ,  type = "l", col = cls.kmY[,i],main="Original curves")
-    #plot(smoothedfd[[i]], col=cls.kmY[,i] ,lwd=1,lty=1, main="Smoothed curves")
-    cat("Cluster data set", i , "of", v, "data sets is done!\n")
-    
-  }
-  
-  return(cls.kmY)
-  
-} 
-
-#==================
-# Spectral Clustering function FSC-S (D2)
-
-# This function does the spectral clustering using second derivatives.
-# The function reads the actual data, basis, and the number of clusters
-# The function returns a matrix with the clusters members. 
-
-fsc.clst2.fun <- function(matrix.data, basis, nclusters){ 
-  
-  n <- dim(matrix.data[[1]])[2] 
-  v <- length(matrix.data) 
-  
-  smoothedfd <- list()
-  evaluatedata <- list()
-  fobject <- list()
-  M0 <- array(rep(0,n^2), dim=c(n,n,v))
-  M1 <- array(rep(0,n^2), dim=c(n,n,v))
-  M <- array(rep(0,n^2), dim=c(n,n,v))
-  sdM <- numeric(v)
-  A <- array(rep(0,n^2), dim=c(n,n,v)) 
-  D <- list()
-  L <- list()
-  X <- list()
-  Y <- list()
-  kmY <- list()
-  cls.kmY <- matrix(0,n,v) 
-  
-  
-  
-  for(i in 1:v){
-    
-    smoothedfd[[i]] <- smooth.basis( t , matrix.data[[i]], penfd)
-    # evaluate the smoothed data
-    evaluatedata[[i]] <- eval.fd(t, as.fd(smoothedfd[[i]]) )
-    # calculate the distance using fda.usc metric.lp() measure
-    fobject[[i]] <- fdata(t(evaluatedata[[i]]))  
-    
-    M[,,i] <- semimetric.deriv(fobject[[i]], nderiv = 2)
-    sdM[i] <- sd(M[,,i])
-    
-    # form the afinity matrix
-    A[,,i] <- exp(-M[,,i]/(2*sdM[i]))
-    
-    # form the Diagonal Matrix D, where D = sum of W across rows
-    D[[i]] = diag(apply(A[,,i],1,sum), n, n)  
-    
-    # form the L matrix, such that L=D*AD*, where *=-1/2
-    L[[i]] = diag(1/sqrt(diag(D[[i]]))) %*% A[,,i] %*% diag(1/sqrt(diag(D[[i]])))
-    
-    # form the matrix X from the eigenvectors
-    X[[i]] = eigen(L[[i]], symmetric = TRUE)$vectors[,1:3] 
-    
-    # form Y from X
-    Y[[i]] = X[[i]]/sqrt(rowSums(X[[i]]^2))
-    
-    # Cluster Y rows using (k-means)
-    kmY[[i]] = kmeans(Y[[i]], centers = nclusters, iter.max = 100L, nstart = 1000L)
-    
-    # get the clusters members
-    cls.kmY[,i] <- kmY[[i]]$cluster
-    
-    # to plot the curves in their clusters
-    #par(mfrow=c(1,2))
-    #matplot(matrix.data[[i]] ,  type = "l", col = cls.kmY[,i],main="Original curves")
-    #plot(smoothedfd[[i]], col=cls.kmY[,i] ,lwd=1,lty=1, main="Smoothed curves")
-    cat("Cluster data set", i , "of", v, "data sets is done!\n")
-    
-  }
-  
-  return(cls.kmY)
-  
-} 
 
