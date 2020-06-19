@@ -4,7 +4,7 @@ Title: This package clusters functional data through the functional spectral clu
 Version: 0.1.1
 Author: Maryam Al Alawi, and Surajit Ray
 Maintainer: Maryam Al Alawi <m.al-alawi.1@research.gla.ac.uk> 
-Description: There are 3 functions, the first function uses the original trajectories to perform the clustering, while the second function uses the first derivatives of the curves and finally the third function uses the second derivatives of the curves to perform the clustering. All the functions requires the original data in a matrix formatand some slected basis for the purpose of smoothing and the number of clusters in the data. It generates the clustered labels for each curve. 
+Description: The function performs a distance-based clustering approach for functional data employing the spectral clustering technique. The distance metric can be calculated from the original trajectories or the first derivatives or the second derivatives.
 License: GPL-2
 Encoding: UTF-8
 LazyData: TRUE
