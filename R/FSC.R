@@ -1,21 +1,14 @@
-
 # This file includes all the FSC methods for clustering functional data
 # modified 29 May 2020
 # --------------------
-
-require(fda)
-require(fda.usc)
-
+FSC.fun <- function(matrix.data , timeline , basis ,  nclusters , d){ 
 #===================
 # Spectral Clustering function FSC
 
 # This function performs functional spectral clustering 
 # and returns the cluster memebers of the curves 
 # The function reads the actual data, timeline, basis, number of clusters,
-# and the value d, where d can be 0, or 1 or 2.
-
-FSC.fun <- function(matrix.data , timeline , basis ,  nclusters , d){ 
-  
+# and the value d, where d can be 0, or 1 or 2.  
   if(class(matrix.data)=="matrix"){
     
     # find the number of curves
