@@ -1,6 +1,3 @@
-# This file includes all the FSC methods for clustering functional data
-# modified 29 May 2020
-# --------------------
 FSC.fun <- function(matrix.data , timeline , basis ,  nclusters , d){ 
 #===================
 # Spectral Clustering function FSC
