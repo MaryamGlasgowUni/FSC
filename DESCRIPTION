@@ -4,7 +4,7 @@ Title: This package clusters functional data through the functional spectral clu
 Version: 0.1.1
 Author: Maryam Al Alawi, and Surajit Ray
 Maintainer: Maryam Al Alawi <m.al-alawi.1@research.gla.ac.uk> 
-Description: The function performs a distancebased clustering approach for functional data employing the spectral clustering technique. 
+Description: The function performs a distance based clustering approach for functional data employing the spectral clustering technique. 
 License: GPL-2
 Encoding: UTF-8
 LazyData: TRUE
